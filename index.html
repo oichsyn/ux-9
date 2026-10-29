@@ -1,0 +1,1606 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POSTCARD IN MOTION</title>
+
+<style>
+/* ==============================
+   01. 기본 디자인
+============================== */
+* { box-sizing: border-box; }
+
+:root {
+  --lime: #d7ff00;
+  --pink: #ff38a9;
+  --black: #111111;
+}
+
+body {
+  margin: 0;
+  background: var(--black);
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button, input, textarea { font-family: inherit; }
+button { cursor: pointer; }
+
+/* ==============================
+   02. 시작 화면
+============================== */
+#homePage {
+  min-height: 100vh;
+  background: var(--lime);
+  color: var(--black);
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 35px;
+  border-bottom: 2px solid currentColor;
+}
+
+.logo {
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -1px;
+}
+
+.top-info {
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.home-content {
+  max-width: 1300px;
+  margin: auto;
+  padding: 50px 35px 80px;
+}
+
+.home-label {
+  display: inline-block;
+  padding: 8px 12px;
+  border: 2px solid black;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.home-title {
+  font-size: clamp(65px, 11vw, 170px);
+  font-weight: 900;
+  line-height: .83;
+  letter-spacing: -.085em;
+  margin: 25px 0 45px;
+}
+
+.home-title span { color: var(--pink); }
+
+.home-bottom {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 45px;
+  align-items: center;
+}
+
+.preview-card {
+  background: white;
+  padding: 12px;
+  border: 3px solid black;
+  box-shadow: 12px 12px 0 black;
+  transform: rotate(-3deg);
+}
+
+.preview-image {
+  position: relative;
+  height: 290px;
+  overflow: hidden;
+  background: #444;
+}
+
+.preview-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-circle {
+  position: absolute;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: var(--lime);
+  top: 30px;
+  right: 30px;
+  mix-blend-mode: screen;
+  animation: float 2.5s infinite ease-in-out;
+}
+
+.preview-star {
+  position: absolute;
+  bottom: 15px;
+  left: 25px;
+  font-size: 100px;
+  color: var(--pink);
+  animation: spin 8s linear infinite;
+}
+
+.preview-caption {
+  display: flex;
+  justify-content: space-between;
+  color: black;
+  font-size: 22px;
+  font-weight: 900;
+  padding: 15px 5px 5px;
+}
+
+.home-description h2 {
+  font-size: clamp(30px, 4vw, 55px);
+  line-height: 1.05;
+  letter-spacing: -2px;
+}
+
+.home-description p {
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.start-button {
+  margin-top: 30px;
+  padding: 20px 32px;
+  background: black;
+  color: var(--lime);
+  border: 2px solid black;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.start-button:hover {
+  background: var(--pink);
+  color: black;
+}
+
+/* ==============================
+   03. 제작 화면
+============================== */
+#editorPage {
+  display: none;
+  min-height: 100vh;
+  background: var(--black);
+}
+
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 35px;
+  border-bottom: 1px solid #444;
+}
+
+.editor-header h1 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.back-button {
+  background: transparent;
+  color: white;
+  border: 1px solid #777;
+  padding: 10px 16px;
+}
+
+.editor-layout {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr) 240px;
+  gap: 20px;
+  max-width: 1500px;
+  margin: auto;
+  padding: 30px;
+}
+
+.panel {
+  background: #202020;
+  border: 1px solid #444;
+  padding: 20px;
+}
+
+.panel h2 {
+  font-size: 14px;
+  color: var(--lime);
+  margin: 0 0 20px;
+}
+
+.panel-label {
+  display: block;
+  font-size: 11px;
+  font-weight: bold;
+  color: #aaa;
+  margin: 20px 0 10px;
+}
+
+.control-button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: #333;
+  color: white;
+  border: 1px solid #555;
+  text-align: left;
+}
+
+.control-button:hover {
+  background: var(--lime);
+  color: black;
+}
+
+.color-row, .shape-color-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.color-choice, .shape-color-button {
+  width: 34px;
+  height: 34px;
+  border: 2px solid white;
+}
+
+.shape-color-button { border-color: #777; }
+
+/* ==============================
+   04. 엽서 앞면과 뒷면
+============================== */
+.postcard-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.postcard-scene {
+  width: 100%;
+  max-width: 850px;
+  aspect-ratio: 16 / 10;
+  perspective: 1400px;
+}
+
+.postcard-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform .8s ease;
+}
+
+.postcard-card.flip {
+  transform: rotateY(180deg);
+}
+
+.postcard-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border: 8px solid white;
+}
+
+.postcard-front { background: #444; }
+
+.postcard-background {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: filter .4s;
+}
+
+.postcard-title {
+  position: absolute;
+  left: 5%;
+  bottom: 6%;
+  max-width: 90%;
+  font-size: clamp(24px, 4vw, 65px);
+  font-weight: 900;
+  line-height: .95;
+  color: var(--lime);
+  text-shadow: 3px 3px 0 black;
+  pointer-events: none;
+  overflow-wrap: anywhere;
+}
+
+.postcard-back {
+  transform: rotateY(180deg);
+  background: #eee7d8;
+  color: #252525;
+  padding: 5%;
+  display: flex;
+  flex-direction: column;
+}
+
+.back-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.back-heading {
+  font-size: clamp(18px, 3vw, 38px);
+  font-weight: 900;
+  margin: 10px 0;
+}
+
+.back-small {
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.stamp-box {
+  width: 80px;
+  height: 95px;
+  border: 2px dashed #555;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transform: rotate(7deg);
+}
+
+.stamp-symbol { font-size: 38px; }
+
+.back-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-height: 0;
+}
+
+.back-message {
+  font-size: clamp(14px, 2vw, 25px);
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 100%;
+  overflow: auto;
+}
+
+.back-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  border-top: 2px solid #555;
+  padding-top: 15px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* ==============================
+   05. 움직이는 도형
+============================== */
+.shape {
+  position: absolute;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  line-height: 1;
+  z-index: 5;
+}
+
+.shape-inner {
+  display: block;
+  font-size: 80px;
+  color: var(--pink);
+}
+
+.shape.circle .shape-inner {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: var(--pink);
+}
+
+.shape.star .shape-inner::before { content: "✳"; }
+.shape.arrow .shape-inner::before { content: "➜"; }
+.shape.zigzag .shape-inner::before { content: "ϟ"; }
+
+.motion-spin { animation: spin 5s linear infinite; }
+.motion-bounce { animation: bounce 1.3s ease-in-out infinite; }
+.motion-float { animation: float 2.5s ease-in-out infinite; }
+.motion-pulse { animation: pulse 1.4s ease-in-out infinite; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-35px); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-18px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+
+/* ==============================
+   06. 제작 버튼 및 입력
+============================== */
+.postcard-bottom {
+  width: 100%;
+  max-width: 850px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 0;
+  font-size: 12px;
+  color: #aaa;
+}
+
+.postcard-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.finish-button, .flip-button {
+  border: 0;
+  padding: 14px 18px;
+  font-weight: 900;
+}
+
+.finish-button {
+  background: var(--lime);
+  color: black;
+}
+
+.flip-button {
+  background: var(--pink);
+  color: black;
+}
+
+.text-input, .letter-input {
+  width: 100%;
+  padding: 12px;
+  background: #111;
+  color: white;
+  border: 1px solid #666;
+  font-size: 13px;
+}
+
+.letter-input {
+  height: 125px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.editor-note {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #aaa;
+}
+
+/* ==============================
+   07. 새로운 PREVIEW 화면
+============================== */
+#previewPage {
+  display: none;
+  min-height: 100vh;
+  background: #111;
+  color: white;
+}
+
+.preview-stage {
+  max-width: 1100px;
+  margin: auto;
+  padding: 42px 24px 70px;
+  text-align: center;
+}
+
+.preview-kicker {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: var(--lime);
+}
+
+.preview-heading {
+  font-size: clamp(38px, 7vw, 88px);
+  font-weight: 900;
+  letter-spacing: -.065em;
+  line-height: 1;
+  margin: 14px 0 30px;
+}
+
+.preview-heading span { color: var(--pink); }
+
+#previewMount {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+#previewMount .postcard-scene {
+  max-width: 850px;
+}
+
+#previewPage .shape {
+  pointer-events: none;
+  outline: none !important;
+}
+
+.preview-controls {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.preview-controls button {
+  padding: 15px 20px;
+  font-weight: 900;
+  border: 0;
+}
+
+.preview-flip {
+  background: var(--pink);
+  color: #111;
+}
+
+.preview-replay {
+  background: var(--lime);
+  color: #111;
+}
+
+.preview-edit {
+  background: transparent;
+  color: white;
+  border: 1px solid #777 !important;
+}
+
+.preview-save {
+  background: white;
+  color: #111;
+}
+
+.preview-save:disabled {
+  opacity: .5;
+  cursor: wait;
+}
+
+.preview-save-status {
+  font-size: 12px;
+  color: var(--lime);
+  min-height: 18px;
+  margin-top: 12px;
+}
+
+.preview-description {
+  font-size: 12px;
+  color: #aaa;
+  line-height: 1.7;
+  margin-top: 20px;
+}
+
+@media (max-width: 1000px) {
+  .editor-layout { grid-template-columns: 1fr; }
+  .home-bottom { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .top-bar, .editor-header { padding: 18px; }
+  .home-content { padding: 35px 20px; }
+  .editor-layout { padding: 15px; }
+  .shape-inner { font-size: 50px; }
+  .shape.circle .shape-inner {
+    width: 55px;
+    height: 55px;
+  }
+  .postcard-face { border-width: 4px; }
+  .postcard-bottom { flex-direction: column; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ==============================
+     08. 시작 화면
+============================== -->
+<section id="homePage">
+  <header class="top-bar">
+    <div class="logo">P / I / M</div>
+    <div class="top-info">DIGITAL POSTCARD STUDIO ©2026</div>
+  </header>
+
+  <main class="home-content">
+    <div class="home-label">INTERACTIVE POSTCARD MAKER</div>
+
+    <h1 class="home-title">
+      POSTCARD<br>
+      IN <span>MOTION.</span>
+    </h1>
+
+    <div class="home-bottom">
+      <div class="preview-card">
+        <div class="preview-image">
+          <img
+            src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1200"
+            alt="Tokyo city"
+          >
+          <div class="preview-circle"></div>
+          <div class="preview-star">✳</div>
+        </div>
+
+        <div class="preview-caption">
+          <span>HELLO FROM TOKYO!</span>
+          <span>↗</span>
+        </div>
+      </div>
+
+      <div class="home-description">
+        <h2>MAKE YOUR<br>MOMENTS MOVE.</h2>
+
+        <p>
+          평범한 여행 사진을 특별한 움직이는 엽서로 만들어 보세요.
+          <br><br>
+          도시를 선택하고, 색을 바꾸고, 움직이는 그래픽과
+          메시지를 더해 나만의 POSTCARD를 완성해 보세요.
+        </p>
+
+        <button class="start-button" onclick="openEditor()">
+          START CREATING ↗
+        </button>
+      </div>
+    </div>
+  </main>
+</section>
+
+<!-- ==============================
+     09. 제작 화면
+============================== -->
+<section id="editorPage">
+
+  <header class="editor-header">
+    <button class="back-button" onclick="goHome()">← BACK</button>
+    <h1>POSTCARD IN MOTION</h1>
+    <span>CREATE YOUR OWN</span>
+  </header>
+
+  <main class="editor-layout">
+
+    <!-- 왼쪽 패널 -->
+    <aside class="panel">
+      <h2>01 / CUSTOMIZE</h2>
+
+      <label class="panel-label">CHOOSE A CITY</label>
+
+      <button class="control-button" onclick="changeCity('tokyo')">
+        TOKYO ↗
+      </button>
+
+      <button class="control-button" onclick="changeCity('paris')">
+        PARIS ↗
+      </button>
+
+      <button class="control-button" onclick="changeCity('newyork')">
+        NEW YORK ↗
+      </button>
+
+      <button class="control-button"
+        onclick="document.getElementById('videoUpload').click()">
+        + UPLOAD YOUR VIDEO
+      </button>
+
+      <input
+        type="file"
+        id="videoUpload"
+        accept="video/*"
+        style="display:none"
+        onchange="uploadVideo(event)"
+      >
+
+      <label class="panel-label">CHOOSE A MOOD</label>
+
+      <div class="color-row">
+        <button class="color-choice" style="background:#d7ff00"
+          onclick="changeMood('#d7ff00')"></button>
+        <button class="color-choice" style="background:#ff38a9"
+          onclick="changeMood('#ff38a9')"></button>
+        <button class="color-choice" style="background:#35e4ff"
+          onclick="changeMood('#35e4ff')"></button>
+        <button class="color-choice" style="background:#ffad3b"
+          onclick="changeMood('#ffad3b')"></button>
+      </div>
+
+      <label class="panel-label">ADD SHAPES</label>
+
+      <button class="control-button" onclick="addShape('circle')">
+        ● CIRCLE
+      </button>
+      <button class="control-button" onclick="addShape('star')">
+        ✳ STAR
+      </button>
+      <button class="control-button" onclick="addShape('arrow')">
+        ➜ ARROW
+      </button>
+      <button class="control-button" onclick="addShape('zigzag')">
+        ϟ ZIGZAG
+      </button>
+
+      <label class="panel-label">SHAPE COLOR</label>
+
+      <div class="shape-color-row">
+        <button class="shape-color-button" style="background:#d7ff00"
+          onclick="changeShapeColor('#d7ff00')"></button>
+        <button class="shape-color-button" style="background:#ff38a9"
+          onclick="changeShapeColor('#ff38a9')"></button>
+        <button class="shape-color-button" style="background:#35e4ff"
+          onclick="changeShapeColor('#35e4ff')"></button>
+        <button class="shape-color-button" style="background:#ffad3b"
+          onclick="changeShapeColor('#ffad3b')"></button>
+        <button class="shape-color-button" style="background:#ae75ff"
+          onclick="changeShapeColor('#ae75ff')"></button>
+        <button class="shape-color-button" style="background:#ffffff"
+          onclick="changeShapeColor('#ffffff')"></button>
+        <button class="shape-color-button" style="background:#ff4747"
+          onclick="changeShapeColor('#ff4747')"></button>
+      </div>
+    </aside>
+
+    <!-- 중앙 엽서 -->
+    <section class="postcard-area">
+
+      <div class="postcard-scene" id="postcardScene">
+        <div class="postcard-card" id="postcardCard">
+
+          <!-- 앞면 -->
+          <div class="postcard-face postcard-front" id="postcard">
+
+            <video
+              id="postcardBackground"
+              class="postcard-background"
+              src="tokyo.mp4"
+              autoplay
+              muted
+              loop
+              playsinline
+            ></video>
+
+            <div class="postcard-title" id="postcardTitle">
+              HELLO FROM TOKYO!
+            </div>
+
+          </div>
+
+          <!-- 뒷면 -->
+          <div class="postcard-face postcard-back">
+
+            <div class="back-top">
+              <div>
+                <div class="back-small">POSTCARD IN MOTION</div>
+                <h2 class="back-heading">Wish you were here!</h2>
+              </div>
+
+              <div class="stamp-box">
+                <div class="stamp-symbol">✳</div>
+                <span>POST</span>
+              </div>
+            </div>
+
+            <div class="back-content">
+              <div class="back-message" id="backMessage">이곳의 풍경을 너에게 보내!
+
+오늘의 순간을
+오래 기억하고 싶어.</div>
+            </div>
+
+            <div class="back-bottom">
+              <span id="backFrom">FROM. TOKYO</span>
+              <span id="backTo">TO. SOMEWHERE</span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="postcard-bottom" id="editorPostcardBottom">
+        <span>CREATE YOUR OWN MOVING POSTCARD</span>
+
+        <div class="postcard-actions">
+          <button class="flip-button" onclick="flipPostcard()">
+            FLIP POSTCARD ↻
+          </button>
+
+          <button class="finish-button" onclick="openPreview()">
+            PREVIEW ↗
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 오른쪽 패널 -->
+    <aside class="panel">
+      <h2>02 / MAKE IT MOVE</h2>
+
+      <label class="panel-label">SHAPE ANIMATION</label>
+
+      <button class="control-button" onclick="changeMotion('motion-spin')">
+        SPIN
+      </button>
+      <button class="control-button" onclick="changeMotion('motion-bounce')">
+        BOUNCE
+      </button>
+      <button class="control-button" onclick="changeMotion('motion-float')">
+        FLOAT
+      </button>
+      <button class="control-button" onclick="changeMotion('motion-pulse')">
+        PULSE
+      </button>
+
+      <label class="panel-label">FRONT MESSAGE</label>
+
+
+
+      <input
+        class="text-input"
+        id="messageInput"
+        value="HELLO FROM TOKYO!"
+        oninput="changeMessage()"
+      >
+
+      <label class="panel-label">WRITE A LETTER</label>
+
+      <textarea
+        class="letter-input"
+        id="letterInput"
+        oninput="changeLetter()"
+      >이곳의 풍경을 너에게 보내!
+
+오늘의 순간을
+오래 기억하고 싶어.</textarea>
+
+      <label class="panel-label">TO</label>
+
+      <input
+        class="text-input"
+        id="receiverInput"
+        placeholder="SOMEWHERE"
+        oninput="changeReceiver()"
+      >
+
+      <label class="panel-label">EDIT SHAPE</label>
+
+      <button class="control-button" onclick="deleteShape()">
+        DELETE SELECTED SHAPE
+      </button>
+
+      <p class="editor-note">
+        도형을 클릭해 선택하고 드래그해서 위치를 바꿀 수 있어요.
+        선택한 도형의 색상과 움직임도 변경할 수 있어요.
+      </p>
+    </aside>
+
+  </main>
+</section>
+
+<!-- ==============================
+     10. 새로운 PREVIEW 화면
+============================== -->
+<section id="previewPage">
+
+  <header class="editor-header">
+    <button class="back-button" onclick="backToEditor()">
+      ← BACK TO EDIT
+    </button>
+
+    <h1>POSTCARD IN   MOTION</h1>
+    <span>FINAL PREVIEW</span>
+  </header>
+
+  <main class="preview-stage">
+
+    <div class="preview-kicker">03 / YOUR POSTCARD</div>
+
+    <h2 class="preview-heading">
+      
+    </h2>
+
+    <!-- 편집한 엽서가 그대로 이동하는 자리 -->
+    <div id="previewMount"></div>
+
+    <div class="preview-controls">
+
+      <button class="preview-flip" onclick="flipPostcard()">
+        ↻ FLIP CARD
+      </button>
+
+      <button class="preview-replay" onclick="playAgain()">
+        ▶ PLAY AGAIN
+      </button>
+
+      <button class="preview-edit" onclick="backToEditor()">
+        ← BACK TO EDIT
+      </button>
+
+      <!-- 새 기능: 영상 저장 -->
+      <button
+        class="preview-save"
+        id="saveVideoButton"
+        onclick="saveVideo()"
+      >
+        ↓ SAVE VIDEO
+      </button>
+
+    </div>
+
+    <div class="preview-save-status" id="saveStatus"></div>
+
+    <p class="preview-description">
+      YOUR MOMENT, IN MOTION.<br>
+      SAVE YOUR POSTCARD AS A MOVING VIDEO.
+    </p>
+
+  </main>
+</section>
+
+<script>
+/* ==============================
+   11. 공통 변수
+============================== */
+const homePage = document.getElementById("homePage");
+const editorPage = document.getElementById("editorPage");
+const previewPage = document.getElementById("previewPage");
+
+const video = document.getElementById("postcardBackground");
+const front = document.getElementById("postcard");
+const title = document.getElementById("postcardTitle");
+const card = document.getElementById("postcardCard");
+const scene = document.getElementById("postcardScene");
+
+let selectedShape = null;
+let shapeCount = 0;
+let uploadedVideoUrl = null;
+let isSavingVideo = false;
+
+/* ==============================
+   12. 화면 이동
+============================== */
+function showPage(page) {
+  homePage.style.display = "none";
+  editorPage.style.display = "none";
+  previewPage.style.display = "none";
+
+  page.style.display = "block";
+  window.scrollTo(0, 0);
+}
+
+function openEditor() {
+  showPage(editorPage);
+  video.play().catch(() => {});
+}
+
+function goHome() {
+  showPage(homePage);
+}
+
+function openPreview() {
+  // 기존 엽서를 복제하지 않고 그대로 이동
+  document.getElementById("previewMount").appendChild(scene);
+
+  selectedShape = null;
+
+  document.querySelectorAll(".shape").forEach(shape => {
+    shape.style.outline = "none";
+  });
+
+  card.classList.remove("flip");
+  showPage(previewPage);
+
+  video.play().catch(() => {});
+}
+
+function backToEditor() {
+  document.querySelector(".postcard-area").prepend(scene);
+
+  card.classList.remove("flip");
+  showPage(editorPage);
+
+  video.play().catch(() => {});
+}
+
+/* ==============================
+   13. 도시 영상 변경
+============================== */
+function changeCity(city) {
+  const cities = {
+    tokyo: {
+      file: "tokyo.mp4",
+      title: "HELLO FROM TOKYO!",
+      from: "FROM. TOKYO"
+    },
+    paris: {
+      file: "paris.mp4",
+      title: "BONJOUR PARIS!",
+      from: "FROM. PARIS"
+    },
+    newyork: {
+      file: "newyork.mp4",
+      title: "HELLO FROM NYC!",
+      from: "FROM. NEW YORK"
+    }
+  };
+
+  const selected = cities[city];
+  if (!selected) return;
+
+  video.src = selected.file;
+  video.load();
+  video.play().catch(() => {});
+
+  title.innerText = selected.title;
+  document.getElementById("messageInput").value = selected.title;
+  document.getElementById("backFrom").innerText = selected.from;
+}
+
+/* ==============================
+   14. 직접 영상 업로드
+============================== */
+function uploadVideo(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (uploadedVideoUrl) {
+    URL.revokeObjectURL(uploadedVideoUrl);
+  }
+
+  uploadedVideoUrl = URL.createObjectURL(file);
+
+  video.src = uploadedVideoUrl;
+  video.load();
+  video.play().catch(() => {});
+
+  title.innerText = "MY OWN POSTCARD!";
+  document.getElementById("messageInput").value =
+    "MY OWN POSTCARD!";
+
+  document.getElementById("backFrom").innerText =
+    "FROM. MY MEMORY";
+
+  event.target.value = "";
+}
+
+/* ==============================
+   15. 무드 색상 및 필터
+============================== */
+function changeMood(color) {
+  title.style.color = color;
+
+  if (color === "#d7ff00") {
+    video.style.filter =
+      "saturate(1) contrast(1.2) hue-rotate(5deg)";
+  } else if (color === "#ff38a9") {
+    video.style.filter =
+      "sepia(1) saturate(1.3) hue-rotate(5deg)";
+  } else if (color === "#35e4ff") {
+    video.style.filter =
+      "saturate(0.7) hue-rotate(15deg) contrast(1)";
+  } else {
+    video.style.filter =
+      "sepia(0.2) saturate(1.1) contrast(0.98)";
+  }
+}
+
+/* ==============================
+   16. 문구 및 편지
+============================== */
+function changeMessage() {
+  title.innerText =
+    document.getElementById("messageInput").value;
+}
+
+function changeLetter() {
+  document.getElementById("backMessage").innerText =
+    document.getElementById("letterInput").value;
+}
+
+function changeReceiver() {
+  const receiver =
+    document.getElementById("receiverInput").value.trim();
+
+  document.getElementById("backTo").innerText =
+    "TO. " + (receiver || "SOMEWHERE");
+}
+
+/* ==============================
+   17. 엽서 뒤집기
+============================== */
+function flipPostcard() {
+  card.classList.toggle("flip");
+}
+
+/* ==============================
+   18. 도형 추가
+============================== */
+function addShape(type) {
+  if (card.classList.contains("flip")) {
+    card.classList.remove("flip");
+  }
+
+  const shape = document.createElement("div");
+  const inner = document.createElement("span");
+
+  shape.className = "shape " + type;
+  inner.className = "shape-inner motion-float";
+
+  shape.appendChild(inner);
+
+  shapeCount++;
+
+  shape.style.left = (15 + (shapeCount * 11) % 55) + "%";
+  shape.style.top = (15 + (shapeCount * 9) % 45) + "%";
+
+  front.appendChild(shape);
+
+  shape.addEventListener("pointerdown", function(event) {
+    selectShape(shape);
+  });
+
+  enableDrag(shape);
+  selectShape(shape);
+}
+
+function selectShape(shape) {
+  document.querySelectorAll(".shape").forEach(item => {
+    item.style.outline = "none";
+  });
+
+  selectedShape = shape;
+  shape.style.outline = "2px dashed white";
+}
+
+/* ==============================
+   19. 도형 색상
+============================== */
+function changeShapeColor(color) {
+  if (!selectedShape) return;
+
+  const inner = selectedShape.querySelector(".shape-inner");
+
+  if (selectedShape.classList.contains("circle")) {
+    inner.style.backgroundColor = color;
+  } else {
+    inner.style.color = color;
+  }
+}
+
+/* ==============================
+   20. 도형 애니메이션
+============================== */
+function changeMotion(motion) {
+  if (!selectedShape) return;
+
+  const inner = selectedShape.querySelector(".shape-inner");
+
+  inner.classList.remove(
+    "motion-spin",
+    "motion-bounce",
+    "motion-float",
+    "motion-pulse"
+  );
+
+  inner.classList.add(motion);
+}
+
+/* ==============================
+   21. 도형 삭제
+============================== */
+function deleteShape() {
+  if (!selectedShape) return;
+
+  selectedShape.remove();
+  selectedShape = null;
+}
+
+/* ==============================
+   22. 도형 드래그
+============================== */
+function enableDrag(shape) {
+  let startX = 0;
+  let startY = 0;
+  let initialLeft = 0;
+  let initialTop = 0;
+
+  shape.addEventListener("pointerdown", function(event) {
+    if (previewPage.style.display === "block") return;
+
+    event.preventDefault();
+
+    startX = event.clientX;
+    startY = event.clientY;
+
+    initialLeft = shape.offsetLeft;
+    initialTop = shape.offsetTop;
+
+    shape.setPointerCapture(event.pointerId);
+  });
+
+  shape.addEventListener("pointermove", function(event) {
+    if (!shape.hasPointerCapture(event.pointerId)) return;
+
+    const dx = event.clientX - startX;
+    const dy = event.clientY - startY;
+
+    const left = Math.max(
+      0,
+      Math.min(front.clientWidth - shape.offsetWidth, initialLeft + dx)
+    );
+
+    const top = Math.max(
+      0,
+      Math.min(front.clientHeight - shape.offsetHeight, initialTop + dy)
+    );
+
+    shape.style.left = left + "px";
+    shape.style.top = top + "px";
+  });
+
+  shape.addEventListener("pointerup", function(event) {
+    if (shape.hasPointerCapture(event.pointerId)) {
+      shape.releasePointerCapture(event.pointerId);
+    }
+  });
+}
+
+/* ==============================
+   23. PREVIEW 다시 재생
+============================== */
+function playAgain() {
+  card.classList.remove("flip");
+
+  try {
+    video.currentTime = 0;
+  } catch (error) {}
+
+  video.play().catch(() => {});
+
+  // CSS 애니메이션 다시 시작
+  document.querySelectorAll(".shape-inner").forEach(inner => {
+    const animation = inner.style.animation;
+    inner.style.animation = "none";
+    void inner.offsetWidth;
+    inner.style.animation = animation;
+  });
+}
+
+/* ==============================
+   24. SAVE VIDEO
+   Canvas + MediaRecorder
+============================== */
+async function saveVideo() {
+  if (isSavingVideo) return;
+
+  const button = document.getElementById("saveVideoButton");
+  const status = document.getElementById("saveStatus");
+
+  if (!window.MediaRecorder ||
+      !HTMLCanvasElement.prototype.captureStream) {
+    status.innerText =
+      "이 브라우저에서는 영상 저장을 지원하지 않아요. Chrome을 사용해 주세요.";
+    return;
+  }
+
+  if (video.readyState < 2) {
+    status.innerText =
+      "배경 영상을 불러오지 못했어요. 영상 파일 경로를 확인해 주세요.";
+    return;
+  }
+
+  isSavingVideo = true;
+  button.disabled = true;
+  button.innerText = "● RECORDING...";
+  status.innerText = "엽서를 녹화하고 있어요. 약 5초만 기다려 주세요.";
+
+  const canvas = document.createElement("canvas");
+  canvas.width = 1280;
+  canvas.height = 800;
+
+  const ctx = canvas.getContext("2d");
+
+  const stream = canvas.captureStream(30);
+  const videoTrack = stream.getVideoTracks()[0];
+
+  if (!videoTrack) {
+    throw new Error("녹화용 비디오 트랙을 생성하지 못했습니다.");
+  }
+
+  let recorder = null;
+  let animationId = null;
+  let downloadUrl = null;
+
+  const oldTime = video.currentTime;
+  const wasPaused = video.paused;
+  const oldMuted = video.muted;
+
+  try {
+    const mime = [
+      "video/webm;codecs=vp9",
+      "video/webm;codecs=vp8",
+      "video/webm"
+    ].find(type => MediaRecorder.isTypeSupported(type));
+
+    if (!mime) {
+      throw new Error("WebM 녹화를 지원하지 않습니다.");
+    }
+
+    const chunks = [];
+
+    recorder = new MediaRecorder(stream, {
+      mimeType: mime,
+      videoBitsPerSecond: 6000000
+    });
+
+    const finished = new Promise((resolve, reject) => {
+      recorder.ondataavailable = event => {
+        if (event.data.size > 0) chunks.push(event.data);
+      };
+
+      recorder.onstop = resolve;
+      recorder.onerror = reject;
+    });
+
+    // 영상 처음부터 재생
+    card.classList.remove("flip");
+    video.muted = true;
+
+    try {
+      video.currentTime = 0;
+    } catch (error) {}
+
+    await video.play();
+
+    // 화면 크기 기준으로 캔버스에 배치
+    const draw = () => {
+      const W = canvas.width;
+      const H = canvas.height;
+
+      ctx.clearRect(0, 0, W, H);
+
+      // 1. 배경 영상
+      const vw = video.videoWidth;
+      const vh = video.videoHeight;
+
+      if (vw && vh) {
+        const scale = Math.max(W / vw, H / vh);
+        const dw = vw * scale;
+        const dh = vh * scale;
+
+        ctx.save();
+
+        // 선택한 무드 필터 반영
+        ctx.filter = getComputedStyle(video).filter;
+
+        ctx.drawImage(
+          video,
+          (W - dw) / 2,
+          (H - dh) / 2,
+          dw,
+          dh
+        );
+
+        ctx.restore();
+      }
+
+      const rect = front.getBoundingClientRect();
+
+      const sx = W / rect.width;
+      const sy = H / rect.height;
+
+      // 2. 움직이는 도형
+      front.querySelectorAll(".shape").forEach(shape => {
+        const inner = shape.querySelector(".shape-inner");
+        const shapeRect = shape.getBoundingClientRect();
+        const style = getComputedStyle(inner);
+
+        const x = (shapeRect.left - rect.left) * sx;
+        const y = (shapeRect.top - rect.top) * sy;
+
+        const shapeW = shape.offsetWidth * sx;
+        const shapeH = shape.offsetHeight * sy;
+
+        const matrix = style.transform === "none"
+          ? new DOMMatrix()
+          : new DOMMatrix(style.transform);
+
+        ctx.save();
+
+        ctx.translate(
+          x + shapeW / 2,
+          y + shapeH / 2
+        );
+
+        ctx.transform(
+          matrix.a,
+          matrix.b,
+          matrix.c,
+          matrix.d,
+          matrix.e * sx,
+          matrix.f * sy
+        );
+
+        if (shape.classList.contains("circle")) {
+          ctx.fillStyle = style.backgroundColor;
+          ctx.beginPath();
+
+          ctx.arc(
+            0,
+            0,
+            inner.offsetWidth * sx / 2,
+            0,
+            Math.PI * 2
+          );
+
+          ctx.fill();
+        } else {
+          const glyph =
+            shape.classList.contains("star") ? "✳" :
+            shape.classList.contains("arrow") ? "➜" : "ϟ";
+
+          ctx.fillStyle = style.color;
+          ctx.font =
+            `900 ${parseFloat(style.fontSize) * sy}px Arial`;
+
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(glyph, 0, 0);
+        }
+
+        ctx.restore();
+      });
+
+      // 3. 앞면 메시지
+      const titleStyle = getComputedStyle(title);
+      const titleSize = parseFloat(titleStyle.fontSize) * sy;
+
+      const left = parseFloat(titleStyle.left) * sx;
+      const bottom = parseFloat(titleStyle.bottom) * sy;
+
+      const maxWidth = W * .9;
+
+      ctx.font = `900 ${titleSize}px Arial`;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "alphabetic";
+
+      const lines = [];
+
+      title.innerText.split("\n").forEach(paragraph => {
+        let line = "";
+
+        paragraph.split(/\s+/).forEach(word => {
+          const candidate = line ? line + " " + word : word;
+
+          if (line && ctx.measureText(candidate).width > maxWidth) {
+            lines.push(line);
+            line = word;
+          } else {
+            line = candidate;
+          }
+        });
+
+        lines.push(line);
+      });
+
+      const lineHeight = titleSize * .95;
+      const startY = H - bottom - (lines.length - 1) * lineHeight;
+
+      lines.forEach((line, index) => {
+        const y = startY + index * lineHeight;
+
+        ctx.fillStyle = "#111111";
+        ctx.fillText(line, left + 4, y + 4);
+
+        ctx.fillStyle = titleStyle.color;
+        ctx.fillText(line, left, y);
+      });
+
+      // 4. 엽서 테두리
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 16;
+      ctx.strokeRect(8, 8, W - 16, H - 16);
+    };
+
+    draw();
+    recorder.start(1000);
+
+    const started = performance.now();
+
+    const tick = () => {
+      draw();
+
+      if (performance.now() - started < 5000) {
+        animationId = requestAnimationFrame(tick);
+      } else if (recorder.state === "recording") {
+        recorder.requestData();
+        recorder.stop();
+      }
+    };
+
+    animationId = requestAnimationFrame(tick);
+
+    await finished;
+
+    // 5. 녹화 파일 다운로드
+    const blob = new Blob(chunks, { type: mime });
+
+    if (!blob.size) {
+      throw new Error("녹화된 영상 데이터가 없습니다.");
+    }
+
+    downloadUrl = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = "POSTCARD-IN-MOTION.webm";
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    status.innerText =
+      "저장 완료! 다운로드 폴더에서 영상을 확인해 주세요.";
+
+  } catch (error) {
+    console.error(error);
+
+    status.innerText =
+      "저장에 실패했어요. Chrome에서 영상이 재생되는지 확인해 주세요.";
+
+  } finally {
+    if (animationId) cancelAnimationFrame(animationId);
+
+    if (recorder && recorder.state !== "inactive") {
+      recorder.stop();
+    }
+
+    stream.getTracks().forEach(track => track.stop());
+
+    try {
+      video.currentTime = oldTime;
+    } catch (error) {}
+
+    video.muted = oldMuted;
+
+    if (wasPaused) {
+      video.pause();
+    } else {
+      video.play().catch(() => {});
+    }
+
+    if (downloadUrl) {
+      setTimeout(() => URL.revokeObjectURL(downloadUrl), 60000);
+    }
+
+    button.disabled = false;
+    button.innerText = "↓ SAVE VIDEO";
+    isSavingVideo = false;
+  }
+}
+</script>
+
+</body>
+</html>
